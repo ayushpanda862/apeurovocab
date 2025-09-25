@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AP Euro Vocab Table</title>
+  <link rel="stylesheet" href="table.css">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    .column-toggles label { margin-right: 20px; }
+    .col-def, .col-func { transition: all 0.3s ease; }
+  </style>
+</head>
+<body>
+  <h1>AP Euro Vocab Reference Table: Chapter 15</h1>
+  <div class="column-toggles">
+    <label><input type="checkbox" id="toggleDef" checked> Show Basic Definition</label>
+    <label><input type="checkbox" id="toggleFunc" checked> Show Function</label>
+    <hr>
+    <label><input type="checkbox" id="useRange"> Use Custom Range</label>
+    <label>Start Index: <input type="number" id="rangeStart" min="1" value="1"></label>
+    <label>End Index: <input type="number" id="rangeEnd" min="1" value="64"></label>
+    <button onclick="renderTable()">Apply Range</button>
+  </div>
+
+  <table id="vocabTable">
+    <thead>
+      <tr>
+        <th>Term</th>
+        <th class="col-def">Basic Definition</th>
+        <th class="col-func">Function</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let vocabData = [];
+
+    // Load CSV
+    fetch("arrays.csv")
+      .then(response => response.text())
+      .then(csv => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: results => {
+            vocabData = results.data.map(row => ({
+              term: row.term,
+              def: row.definition,
+              function: row.function
+            }));
+            renderTable(); // Initial render after load
+          }
+        });
+      });
+
+    function updateColumnVisibility() {
+      const showDef = document.getElementById("toggleDef").checked;
+      const showFunc = document.getElementById("toggleFunc").checked;
+
+      document.querySelectorAll(".col-def").forEach(el => el.style.display = showDef ? "" : "none");
+      document.querySelectorAll(".col-func").forEach(el => el.style.display = showFunc ? "" : "none");
+    }
+
+    document.getElementById("toggleDef").addEventListener("change", updateColumnVisibility);
+    document.getElementById("toggleFunc").addEventListener("change", updateColumnVisibility);
+
+    function renderTable() {
+      const useRange = document.getElementById("useRange").checked;
+      const start = parseInt(document.getElementById("rangeStart").value);
+      const end = parseInt(document.getElementById("rangeEnd").value);
+
+      const maxLength = vocabData.length;
+      const validStart = Math.max(0, Math.min(start, maxLength)); // +1 offset already applied
+      const validEnd = Math.max(validStart, Math.min(end, maxLength));
+
+      if (useRange && (validEnd - validStart + 1) < 10) {
+        alert("Selected range must include at least 10 items.");
+        return;
+      }
+
+      const tableBody = document.querySelector("#vocabTable tbody");
+      tableBody.innerHTML = "";
+
+      for (let i = 0; i < maxLength; i++) {
+        if (useRange && (i < validStart || i > validEnd)) continue;
+
+        const item = vocabData[i];
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.term}</td>
+          <td class="col-def">${item.def}</td>
+          <td class="col-func">${item.function}</td>
+        `;
+        tableBody.appendChild(row);
+      }
+
+      updateColumnVisibility();
+    }
+  </script>
+</body>
+</html>

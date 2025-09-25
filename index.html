@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AP Euro Vocab Quiz</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    select, input[type="text"] { width: 100%; margin-bottom: 10px; }
+    .term-block { margin-bottom: 20px; }
+    #timer { font-weight: bold; color: darkred; }
+  </style>
+</head>
+<body>
+  <h1>AP Euro Vocab Quiz: Chapter 15</h1>
+  <button onclick="window.open('table.html', '_blank')">Open Vocab Table</button>
+  <div class="settings">
+    <label><input type="checkbox" id="toggleVocab1" checked> Use Basic Definitions</label><br>
+    <label><input type="checkbox" id="toggleVocab2" checked> Use Functional Roles</label><br>
+    <hr>
+    <label><input type="checkbox" id="useRange"> Use Custom Range</label>
+    <label>Start Index: <input type="number" id="rangeStart" min="1" value="1"></label>
+    <label>End Index: <input type="number" id="rangeEnd" min="1" value="64"></label>
+  </div>
+  <button onclick="startQuiz()">Start Quiz</button>
+  <p id="timer"></p>
+  <form id="quizForm"></form>
+  <button onclick="submitQuiz()">Submit</button>
+  <div id="results"></div>
+
+  <script>
+    let vocabData = [];
+    let selectedTerms = [];
+    let timer;
+
+    const settings = {
+      vocab1: true,
+      vocab2: true
+    };
+
+    document.getElementById("toggleVocab1").addEventListener("change", e => settings.vocab1 = e.target.checked);
+    document.getElementById("toggleVocab2").addEventListener("change", e => settings.vocab2 = e.target.checked);
+
+    // Load CSV on page load
+    fetch("arrays.csv")
+      .then(response => response.text())
+      .then(csv => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: results => {
+            vocabData = results.data.map(row => ({
+              term: row.term,
+              def: row.definition,
+              function: row.function
+            }));
+          }
+        });
+      });
+
+    function startQuiz() {
+      document.getElementById("results").innerHTML = "";
+      const form = document.getElementById("quizForm");
+      form.innerHTML = "";
+
+      if (!settings.vocab1 && !settings.vocab2) {
+        alert("Please enable at least one vocab source.");
+        return;
+      }
+
+      const useRange = document.getElementById("useRange").checked;
+      const rangeStart = parseInt(document.getElementById("rangeStart").value);
+      const rangeEnd = parseInt(document.getElementById("rangeEnd").value);
+
+      const maxLength = vocabData.length;
+      const validStart = Math.max(0, Math.min(rangeStart, maxLength - 1));
+      const validEnd = Math.max(validStart, Math.min(rangeEnd, maxLength - 1));
+      if (useRange && (validEnd - validStart + 1) < 10) {
+        alert("Selected range must include at least 10 items.");
+        return;
+      }
+
+      const usedIndices = new Set();
+      selectedTerms = [];
+
+      while (selectedTerms.length < 10) {
+        const index = useRange
+        ? Math.floor(Math.random() * (rangeEnd - rangeStart + 1)) + rangeStart
+        : Math.floor(Math.random() * maxLength);
+        if (usedIndices.has(index)) continue;
+
+        const item = vocabData[index];
+        const display = settings.vocab1 && settings.vocab2
+          ? (Math.random() < 0.5 ? item.def : item.function)
+          : settings.vocab1 ? item.def
+          : settings.vocab2 ? item.function
+          : "No definition available";
+
+        selectedTerms.push({ term: item.term, display });
+        usedIndices.add(index);
+      }
+
+      selectedTerms.forEach((item, index) => {
+        const block = document.createElement("div");
+        block.className = "term-block";
+        block.innerHTML = `<strong>${index + 1}. ${item.display}</strong><br>
+          <input type="text" id="q${index}" placeholder="Type the matching term" autocomplete="off">`;
+        form.appendChild(block);
+      });
+
+      startTimer(240);
+    }
+
+    function startTimer(seconds) {
+      clearInterval(timer);
+      const timerDisplay = document.getElementById("timer");
+      timerDisplay.textContent = `Time Remaining: ${seconds}s`;
+
+      timer = setInterval(() => {
+        seconds--;
+        timerDisplay.textContent = `Time Remaining: ${seconds}s`;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          submitQuiz();
+        }
+      }, 1000);
+    }
+
+    function submitQuiz() {
+      clearInterval(timer);
+      let output = "<h2>Results</h2><ul>";
+
+      selectedTerms.forEach((item, index) => {
+        const typed = document.getElementById(`q${index}`).value.trim();
+        output += `<li><strong>Definition:</strong> ${item.display}<br>
+        <strong>Your answer:</strong> ${typed}<br>
+        <strong>Correct term:</strong> ${item.term}</li>`;
+      });
+
+      document.getElementById("results").innerHTML = output;
+    }
+  </script>
+</body>
+</html>
