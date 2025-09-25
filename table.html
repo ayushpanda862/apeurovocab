@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AP Euro Vocab Table</title>
+  <link rel="stylesheet" href="table.css">
+</head>
+<body>
+  <h1>AP Euro Vocab Reference Table: Chapter 15</h1>
+  <div class="column-toggles">
+    <label><input type="checkbox" id="toggleDef" checked> Show Basic Definition</label>
+    <label><input type="checkbox" id="toggleFunc" checked> Show Function</label>
+    <hr>
+    <label>
+      <input type="checkbox" id="useRange">
+      <span>Use Custom Range</span>
+    </label>
+
+    <label>
+      Start Index:
+      <input type="number" id="rangeStart" min="1" value="1">
+    </label>
+
+    <label>
+      End Index:
+      <input type="number" id="rangeEnd" min="1" value="64">
+    </label>
+
+    <button onclick="renderTable()">Apply Range</button>
+
+  </div>
+
+  <table id="vocabTable">
+    <thead>
+      <tr>
+        <th>Term</th>
+        <th class="col-def">Basic Definition</th>
+        <th class="col-func">Function</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+
+  <script>
+    // Replace these with your actual arrays
+    const vocab1 = [
+      { term: "Politiques", def: "Leaders who prioritize political stability over religious doctrine, especially during religious wars" },
+      { term: "Mercantilism", def: "Economic theory emphasizing state control of trade to increase national wealth" },
+      { term: "Inflation", def: "General rise in prices, often due to increased money supply or scarcity of goods" },
+      { term: "Sexism", def: "Discrimination based on gender, typically against women" },
+      { term: "Racism", def: "Belief in the superiority of one race over another, often resulting in discrimination" },
+      { term: "Skepticism", def: "Philosophical doubt or questioning of accepted truths and beliefs" },
+      { term: "Misogyny", def: "Hatred or prejudice against women" },
+      { term: "Baroque", def: "Art style characterized by drama, grandeur, and emotional intensity, popular in 17th-century Europe" },
+      { term: "Quinto", def: "Spanish crown’s claim to one-fifth of all precious metals mined in the New World" },
+      { term: "Audiencia", def: "Spanish colonial court system that combined judicial and administrative functions" },
+      { term: "Corregidores", def: "Local Spanish officials who governed towns and enforced royal policies" },
+      { term: "Thirty Years’ War", def: "Devastating European conflict (1618–1648) rooted in religious and political tensions" },
+      { term: "Spanish Armada", def: "Failed naval invasion of England by Spain in 1588" },
+      { term: "Peace of Westphalia", def: "Treaty ending the Thirty Years’ War, establishing state sovereignty and religious tolerance" },
+      { term: "Saint Bartholomew’s Day massacre", def: "Mass killing of Huguenots in France (1572), intensifying religious conflict" },
+      { term: "War of the Three Henries", def: "French civil war between Henry III, Henry of Navarre, and Henry of Guise" },
+      { term: "Edict of Nantes", def: "1598 decree granting religious tolerance to French Protestants (Huguenots)" },
+      { term: "East India Company", def: "English trading company that dominated commerce in Asia" },
+      { term: "Nobility of the robe", def: "French nobles who gained status through administrative service rather than military lineage" },
+      { term: "Defenestration of Prague", def: "Protestant nobles threw Catholic officials out a window, sparking the Thirty Years’ War" },
+      { term: "Caravel", def: "Small, fast ship used by Portuguese and Spanish explorers" },
+      { term: "Treaty of Cateau-Cambresis", def: "Ended Habsburg-Valois Wars; France recognized Spanish dominance in Italy" },
+      { term: "Catherine de’ Medici", def: "Powerful French queen and regent during religious wars; associated with the St. Bartholomew’s Day massacre" },
+      { term: "Henry of Navarre (IV)", def: "French king who converted to Catholicism and issued the Edict of Nantes" },
+      { term: "Henry III", def: "Last Valois king of France, assassinated during the War of the Three Henries" },
+      { term: "Henry of Guise", def: "Leader of the Catholic League in France, opposed Protestant influence" },
+      { term: "Gaspard de Coligny", def: "Huguenot leader assassinated during the St. Bartholomew’s Day massacre" },
+      { term: "Philip II", def: "Spanish king who led Catholic crusades and launched the Spanish Armada" },
+      { term: "Council of Blood", def: "Harsh tribunal led by Duke of Alva to suppress Dutch revolt" },
+      { term: "Union of Utrecht", def: "Alliance of northern Dutch provinces declaring independence from Spain" },
+      { term: "Mary Queen of Scots", def: "Catholic rival to Elizabeth I, executed for plotting against the English crown" },
+      { term: "Pope Sixtus V", def: "Supported Catholic League and Spanish intervention in France" },
+      { term: "Protestant Union", def: "Alliance of German Protestant states formed to defend religious interests" },
+      { term: "Catholic League", def: "Coalition of Catholic states aiming to suppress Protestantism in the Holy Roman Empire" },
+      { term: "Prince Henry 'The Navigator'", def: "Portuguese royal who sponsored early exploration along the African coast" },
+      { term: "Vasco da Gama", def: "Portuguese explorer who reached India by sea, opening trade routes" },
+      { term: "Astrolabe", def: "Navigational instrument used to determine latitude at sea" },
+      { term: "Hernando Cortes", def: "Spanish conquistador who defeated the Aztec Empire" },
+      { term: "Christopher Columbus", def: "Explorer who initiated European colonization of the Americas in 1492" },
+      { term: "Francisco Pizarro", def: "Spanish conquistador who conquered the Inca Empire" },
+      { term: "Price revolution", def: "Period of inflation in 16th-century Europe due to influx of New World silver" },
+      { term: "Viceroyalities", def: "Spanish colonial administrative divisions governed by viceroys" },
+      { term: "Bartolomé de Las Casas", def: "Spanish priest who advocated for indigenous rights in the Americas" },
+      { term: "Columbian Exchange", def: "Global transfer of plants, animals, and diseases between Old and New Worlds" },
+      { term: "Captaincies", def: "Portuguese colonial land grants used to govern Brazil" },
+      { term: "Intendants", def: "French royal officials who enforced central authority in provinces" },
+      { term: "Encomienda system", def: "Spanish labor system granting colonists control over indigenous labor" },
+      { term: "Inca Empire", def: "Advanced Andean civilization conquered by Spain in the 16th century" },
+      { term: "Treaty of Tordesillas", def: "1494 agreement dividing New World territories between Spain and Portugal" },
+      { term: "Ferdinand Magellan", def: "Led first circumnavigation of the globe, though he died en route" },
+      { term: "Mexica (Aztec) Empire", def: "Powerful Mesoamerican empire conquered by Cortes" },
+      { term: "Malacca", def: "Strategic Southeast Asian port controlled by Portuguese for spice trade" },
+      { term: "Zheng He", def: "Chinese admiral who led massive naval expeditions during the Ming dynasty" },
+      { term: "Conquistadores", def: "Spanish soldiers who led conquests in the Americas" },
+      { term: "Magnetic compass", def: "Navigation tool that helped determine direction at sea" },
+      { term: "Lisbon", def: "Capital of Portugal and hub of early European exploration" },
+      { term: "Puritans", def: "English Protestants seeking to purify the Church of England" },
+      { term: "Philip III", def: "Spanish king whose reign saw decline in imperial power" },
+      { term: "Philip IV", def: "Spanish king during Thirty Years’ War; faced internal and external challenges" },
+      { term: "Lateen sail", def: "Triangular sail that improved maneuverability for oceanic navigation" },
+      { term: "Military revolution", def: "Transformation in warfare during early modern Europe, including gunpowder and professional armies" },
+    ];
+
+
+    const vocab2 = [
+      { term: "Politiques", function: "Stabilized fractured nations by prioritizing unity over religious dogma" },
+      { term: "Mercantilism", function: "Strengthened state power through controlled trade and colonial exploitation" },
+      { term: "Inflation", function: "Destabilized economies and shifted wealth due to rising prices and silver influx" },
+      { term: "Sexism", function: "Reinforced patriarchal structures and limited women's roles in society" },
+      { term: "Racism", function: "Justified colonial hierarchies and institutionalized inequality" },
+      { term: "Skepticism", function: "Challenged traditional authority and laid groundwork for scientific inquiry" },
+      { term: "Misogyny", function: "Marginalized women and shaped cultural and legal exclusion" },
+      { term: "Baroque", function: "Promoted religious emotion and absolutist grandeur through art and architecture" },
+      { term: "Quinto", function: "Funded Spanish imperial ambitions through royal claims on colonial wealth" },
+      { term: "Audiencia", function: "Extended judicial control and centralized colonial governance" },
+      { term: "Corregidores", function: "Enforced royal authority at the local level in Spanish territories" },
+      { term: "Thirty Years’ War", function: "Redefined European power dynamics and religious boundaries" },
+      { term: "Spanish Armada", function: "Signaled Spain’s decline and England’s naval rise" },
+      { term: "Peace of Westphalia", function: "Established state sovereignty and ended religious warfare in Europe" },
+      { term: "Saint Bartholomew’s Day massacre", function: "Deepened religious divisions and escalated French civil conflict" },
+      { term: "War of the Three Henries", function: "Fragmented France and paved the way for Bourbon ascendancy" },
+      { term: "Edict of Nantes", function: "Temporarily resolved religious tensions through legal tolerance" },
+      { term: "East India Company", function: "Expanded British commercial dominance in Asia through chartered trade" },
+      { term: "Nobility of the robe", function: "Shifted power from military aristocracy to bureaucratic elites" },
+      { term: "Defenestration of Prague", function: "Triggered the Thirty Years’ War by symbolizing Protestant resistance" },
+      { term: "Caravel", function: "Enabled long-distance exploration and maritime expansion" },
+      { term: "Treaty of Cateau-Cambresis", function: "Ended dynastic wars and confirmed Spanish dominance in Italy" },
+      { term: "Catherine de’ Medici", function: "Manipulated religious factions to maintain Valois control" },
+      { term: "Henry of Navarre (IV)", function: "Unified France through pragmatic conversion and religious compromise" },
+      { term: "Henry III", function: "Struggled to balance Catholic pressure and royal authority during civil war" },
+      { term: "Henry of Guise", function: "Mobilized Catholic League against Protestant influence in France" },
+      { term: "Gaspard de Coligny", function: "Symbolized Huguenot leadership and became a martyr of religious violence" },
+      { term: "Philip II", function: "Centralized Spanish power and led Catholic crusades across Europe" },
+      { term: "Council of Blood", function: "Suppressed Dutch resistance through brutal repression" },
+      { term: "Union of Utrecht", function: "Established Dutch independence and Protestant unity" },
+      { term: "Mary Queen of Scots", function: "Threatened Elizabethan stability and fueled Catholic plots" },
+      { term: "Pope Sixtus V", function: "Supported Catholic intervention in European religious conflicts" },
+      { term: "Protestant Union", function: "Defended Protestant interests in the Holy Roman Empire" },
+      { term: "Catholic League", function: "Consolidated Catholic power against Protestant expansion" },
+      { term: "Prince Henry 'The Navigator'", function: "Launched Portugal’s maritime exploration and navigational advances" },
+      { term: "Vasco da Gama", function: "Opened direct sea trade routes between Europe and India" },
+      { term: "Astrolabe", function: "Improved navigation and enabled transoceanic exploration" },
+      { term: "Hernando Cortes", function: "Conquered the Aztec Empire and expanded Spanish colonial rule" },
+      { term: "Christopher Columbus", function: "Initiated sustained European contact with the Americas" },
+      { term: "Francisco Pizarro", function: "Toppled the Inca Empire and secured vast wealth for Spain" },
+      { term: "Price revolution", function: "Disrupted European economies through inflation and demographic shifts" },
+      { term: "Viceroyalities", function: "Structured Spanish colonial administration into centralized regions" },
+      { term: "Bartolomé de Las Casas", function: "Advocated for indigenous rights and criticized colonial abuses" },
+      { term: "Columbian Exchange", function: "Transformed global ecosystems and economies through biological exchange" },
+      { term: "Captaincies", function: "Delegated colonial governance in Brazil through land grants" },
+      { term: "Intendants", function: "Strengthened royal control through provincial oversight in France" },
+      { term: "Encomienda system", function: "Exploited indigenous labor under the guise of protection and conversion" },
+      { term: "Inca Empire", function: "Demonstrated advanced Andean civilization prior to Spanish conquest" },
+      { term: "Treaty of Tordesillas", function: "Divided colonial spheres between Spain and Portugal to avoid conflict" },
+      { term: "Ferdinand Magellan", function: "Proved global circumnavigation and expanded geographic knowledge" },
+      { term: "Mexica (Aztec) Empire", function: "Exemplified Mesoamerican power and ritual before Spanish conquest" },
+      { term: "Malacca", function: "Controlled strategic trade routes in Southeast Asia" },
+      { term: "Zheng He", function: "Showcased Ming naval power through diplomatic voyages" },
+      { term: "Conquistadores", function: "Expanded Spanish empire through military conquest and colonization" },
+      { term: "Magnetic compass", function: "Enabled directional navigation and maritime precision" },
+      { term: "Lisbon", function: "Served as a hub for Portuguese exploration and trade" },
+      { term: "Puritans", function: "Sought religious purification and influenced English political culture" },
+      { term: "Philip III", function: "Presided over Spain’s decline through passive governance" },
+      { term: "Philip IV", function: "Struggled to maintain Spanish dominance during Thirty Years’ War" },
+      { term: "Lateen sail", function: "Enhanced ship maneuverability and facilitated oceanic exploration" },
+      { term: "Military revolution", function: "Redefined warfare through gunpowder, fortifications, and professional armies" }
+    ];
+
+    function updateColumnVisibility() {
+      const showDef = document.getElementById("toggleDef").checked;
+      const showFunc = document.getElementById("toggleFunc").checked;
+
+      document.querySelectorAll(".col-def").forEach(el => el.style.display = showDef ? "" : "none");
+      document.querySelectorAll(".col-func").forEach(el => el.style.display = showFunc ? "" : "none");
+    }
+
+    document.getElementById("toggleDef").addEventListener("change", updateColumnVisibility);
+    document.getElementById("toggleFunc").addEventListener("change", updateColumnVisibility);
+
+    function renderTable() {
+      const useRange = document.getElementById("useRange").checked;
+      const start = parseInt(document.getElementById("rangeStart").value) - 1;
+      const end = parseInt(document.getElementById("rangeEnd").value) - 1;
+
+      const maxLength = Math.min(vocab1.length, vocab2.length);
+      const validStart = Math.max(0, Math.min(start, maxLength - 1));
+      const validEnd = Math.max(validStart, Math.min(end, maxLength - 1));
+
+      if (useRange && (validEnd - validStart + 1) < 10) {
+        alert("Selected range must include at least 10 items.");
+        return;
+      }
+
+      const tableBody = document.querySelector("#vocabTable tbody");
+      tableBody.innerHTML = "";
+
+      for (let i = 0; i < maxLength; i++) {
+        if (useRange && (i < validStart || i > validEnd)) continue;
+
+        const row = document.createElement("tr");
+        const term = vocab1[i]?.term || "";
+        const def = vocab1[i]?.def || "";
+        const func = vocab2[i]?.function || "";
+
+        row.innerHTML = `
+          <td>${term}</td>
+          <td class="col-def">${def}</td>
+          <td class="col-func">${func}</td>
+        `;
+        tableBody.appendChild(row);
+      }
+
+      updateColumnVisibility();
+    }
+
+    // Initial render
+    renderTable();
+
+</script></body>
+</html>
